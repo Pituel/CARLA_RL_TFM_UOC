@@ -26,8 +26,11 @@ class DQNAgent(object):
         # Better performance for this environment
         n_actions = 5
         if MODE == 1:
+            # Early stopping for training.
+            self.limit = 1350
             self.q_network = DuelingDQnetwork(n_actions, MODEL)
         else:
+            self.limit = 800
             self.q_network = DuelingDQnetworkVAE(n_actions, MODEL)
         self.action_space = np.arange(n_actions)
         self.target_network = deepcopy(self.q_network)
@@ -224,14 +227,8 @@ class DQNAgent(object):
                         self.plot_rewards(self.scores, self.mean_scores)
                         self.plot_loss(self.training_loss)
                         self.plot_epsilon(self.epsilon_ev)
-                    
-                    # Early stopping for training.
-                    if MODE == 1:
-                        limit = 1350
-                    else:
-                        limit = 800
 
-                    if episode >= EPISODES or self.cumulative_score >= limit:
+                    if episode >= EPISODES or self.cumulative_score >= self.limit:
                         # End time counter and print the results.
                         end = time.time()
                         print("Training time: {} minutes".format(round((end-start)/60,2)))
